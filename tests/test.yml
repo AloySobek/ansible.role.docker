@@ -5,8 +5,8 @@
 # Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
 
 ---
-- hosts: aragorn
+- hosts: localhost
   roles:
     - ../../ansible.role.docker
   vars:
-    state: 'uninstall'
+    state: 'install'
