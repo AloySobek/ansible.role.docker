@@ -1,0 +1,17 @@
+# File              : main.yml
+# Author            : Rustam Khafizov <super.rustamm@gmail.com>
+# Date              : 06.09.2020
+# Last Modified Date: 07.09.2020
+# Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
+
+---
+state: 'install'
+daemon_localhost_port: 2376
+hosts: |
+  [
+    'localhost:2376',
+    '{{ ansible_facts['default_ipv4']['address'] }}:2376'
+  ]
+ca_tls_path: "/etc/certs/ca"
+server_tls_path: "/etc/certs/docker/server"
+client_tls_path: "/etc/certs/docker/client"

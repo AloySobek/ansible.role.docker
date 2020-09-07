@@ -1,0 +1,36 @@
+# File              : main.yml
+# Author            : Rustam Khafizov <super.rustamm@gmail.com>
+# Date              : 06.09.2020
+# Last Modified Date: 07.09.2020
+# Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
+
+---
+old_versions:
+  - docker
+  - docker-engine
+  - docker.io
+  - containerd
+  - runc
+
+dependencies:
+  - apt-transport-https
+  - ca-certificates
+  - curl
+  - gnupg-agent
+  - software-properties-common
+  - gnupg2
+  - lsb-release
+  - network-manager
+  - python-dbus
+  - python3-dbus
+  - libnm-dev
+
+docker_engine:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io
+
+envs:
+  - "DOCKER_TLS_VERIFY=1"
+  - "DOCKER_HOST=localhost:{{ daemon_localhost_port }}"
+  - "DOCKER_CERT_PATH=/home/{{ ansible_facts['env']['LOGNAME'] }}/.docker"

@@ -1,0 +1,51 @@
+# File              : install.yml
+# Author            : Rustam Khafizov <super.rustamm@gmail.com>
+# Date              : 06.09.2020
+# Last Modified Date: 07.09.2020
+# Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
+
+---
+- name: update before start
+  become: true
+  apt:
+    update_cache: true
+    cache_valid_time: 0
+    force_apt_get: true
+    upgrade: dist
+
+- name: discovering distro release
+  shell: "lsb_release -cs"
+  register: release
+
+- name: uninstalling old versions
+  become: true
+  apt:
+    name: "{{ old_versions }}"
+    state: absent
+    purge: true
+
+- name: installing dependencies
+  become: true
+  apt:
+    name: "{{ dependencies }}"
+    state: latest
+
+- name: adding gpg key
+  become: true
+  apt_key:
+    id: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+    url: "https://download.docker.com/linux/debian/gpg"
+    state: present
+
+- name: adding repository
+  become: true
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/debian {{ release.stdout }} stable"
+    state: present
+    update_cache: true 
+
+- name: installing engine
+  become: true
+  apt:
+    name: "{{ docker_engine }}"
+    state: latest

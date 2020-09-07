@@ -1,0 +1,19 @@
+# File              : main.yml
+# Author            : Rustam Khafizov <super.rustamm@gmail.com>
+# Date              : 06.09.2020
+# Last Modified Date: 07.09.2020
+# Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
+
+---
+- name: systemctl reload
+  become: true
+  systemd:
+    daemon_reload: true
+
+- name: starting
+  become: true
+  systemd:
+    daemon_reload: true
+    name: docker
+    state: restarted
+    enabled: true

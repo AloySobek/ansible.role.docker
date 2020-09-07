@@ -1,0 +1,15 @@
+{
+  "exec-opts": ["native.cgroupdriver=systemd"],
+  "log-driver": "json-file",
+  "log-opts":
+  {
+    "max-size": "100m"
+  },
+  "storage-driver": "overlay2",
+  "tls": true,
+  "tlsverify": true,
+  "tlscacert": "/etc/docker/ca.pem",
+  "tlscert": "/etc/docker/cert.pem",
+  "tlskey": "/etc/docker/key.pem",
+  "hosts": {{ hosts | to_json }}
+}

@@ -1,0 +1,58 @@
+# File              : configure.yml
+# Author            : Rustam Khafizov <super.rustamm@gmail.com>
+# Date              : 06.09.2020
+# Last Modified Date: 07.09.2020
+# Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
+
+---
+- name: ensuring that .docker folder exists
+  file:
+    path: "$HOME/.docker"
+    state: directory
+
+- name: installing tls keys
+  become: true
+  copy:
+    src: "{{ item.path }}/{{ item.name }}"
+    dest: "{{ item.dest | default('/etc/docker') }}/{{ item.name }}"
+    mode: 0400
+    owner: root
+  loop:
+    - path: "{{ ca_tls_path }}"
+      name: ca.pem
+    - path: "{{ server_tls_path }}"
+      name: cert.pem
+    - path: "{{ server_tls_path }}"
+      name: key.pem
+    - path: "{{ ca_tls_path }}"
+      name: ca.pem
+      dest: "/home/{{ ansible_facts['env']['LOGNAME'] }}/.docker"
+    - path: "{{ client_tls_path }}"
+      name: cert.pem
+      dest: "/home/{{ ansible_facts['env']['LOGNAME'] }}/.docker"
+    - path: "{{ client_tls_path }}"
+      name: key.pem
+      dest: "/home/{{ ansible_facts['env']['LOGNAME'] }}/.docker"
+
+- name: setting docker variables
+  become: true
+  lineinfile:
+    path: "/etc/profile"
+    line: "export {{ item }}"
+  loop: "{{ envs }}"
+
+- name: installing docker service
+  become: true
+  copy:
+    src: docker.service
+    dest: "/usr/lib/systemd/system/docker.service"
+  notify:
+    systemctl reload
+
+- name: configuring daemon
+  become: true
+  template:
+    src: daemon.json.j2
+    dest: /etc/docker/daemon.json
+  notify:
+    - starting

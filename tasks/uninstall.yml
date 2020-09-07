@@ -1,0 +1,78 @@
+# File              : uninstall.yml
+# Author            : Rustam Khafizov <super.rustamm@gmail.com>
+# Date              : 06.09.2020
+# Last Modified Date: 07.09.2020
+# Last Modified By  : Rustam Khafizov <super.rustamm@gmail.com>
+
+---
+- name: discovering distro release
+  shell: "lsb_release -cs"
+  register: release
+
+- name: uninstalling dependencies
+  become: true
+  apt:
+    name: "{{ item }}"
+    state: absent
+    purge: true
+  loop: "{{ dependencies }}"
+  when: state == 'full_uninstall'
+
+- name: removing key
+  become: true
+  apt_key:
+    id: 9DC858229FC7DD38854AE2D88D81803C0EBFCD88
+    state: absent
+
+- name: removing repository
+  become: true
+  apt_repository:
+    repo: "deb [arch=amd64] https://download.docker.com/linux/debian {{ release.stdout }} stable"
+    state: absent
+
+- name: uninstalling engine
+  become: true
+  apt:
+    name: "{{ item }}"
+    state: absent
+    purge: true
+  loop: "{{ docker_engine }}"
+
+- name: removing docker files
+  become: true
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - "/etc/docker"
+    - "/var/lib/docker"
+    - "/var/run/docker.sock"
+    - "/var/run/docker"
+    - "/home/{{ ansible_facts['env']['LOGNAME'] }}/.docker"
+
+- name: removing docker group
+  become: true
+  group:
+    name: docker
+    state: absent
+  register: first_remove
+
+- name: removing docker network
+  become: true
+  shell: "ip link delete docker0"
+  when: first_remove.changed
+
+- name: removing docker envs
+  become: true
+  lineinfile:
+    path: "/etc/profile"
+    line: "export {{ item }}"
+    state: absent
+  loop: "{{ envs }}"
+
+- name: clean after uninstalling
+  become: true
+  apt:
+    autoremove: true
+    autoclean: true
+    force_apt_get: true
